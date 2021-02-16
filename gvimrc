@@ -15,6 +15,30 @@
 "    set background=light
     set background=dark
 
+" change the colorscheme automatically based on mouse focus and click
+" autocmd FocusLost * :colorscheme default
+" autocmd FocusGained * :colorscheme elflord
+" change the colorscheme based on focus
+    nnoremap c/ :if Toggle_FocusScheme()<Bar>endif<CR>
+    function! Toggle_FocusScheme()
+        let @/ = ''
+        if exists('#Focus_Scheme')
+            au! Focus_Scheme
+            augroup! Focus_Scheme
+            setl updatetime=4000
+            echo 'Focus Scheme Change Turned OFF'
+            return 0
+        else
+            augroup Focus_Scheme
+            au!
+            autocmd FocusLost   * :colorscheme monokai
+            autocmd FocusGained * :colorscheme my_scheme
+            augroup end
+            echo 'Focus Scheme Change Turned ON'
+            return 1
+        endif
+    endfunction
+
 " marginal line number color
     if &background == "dark"
         if !exists("colorscheme_elflord")
@@ -37,27 +61,33 @@
 " cursor color
     if &background == "dark"
         autocmd InsertEnter * highlight Cursor guibg=Cyan guifg=Black
-        autocmd InsertLeave * highlight Cursor guibg=Red guifg=Black
+        autocmd InsertLeave * highlight Cursor guibg=#FF1494 guifg=Black
         autocmd InsertEnter * highlight ICursor guibg=#C00066 guifg=Black
     else
         autocmd InsertEnter * highlight Cursor guibg=#FF05A0
-        autocmd InsertLeave * highlight Cursor guibg=#00FF00 guifg=White
+        autocmd InsertLeave * highlight Cursor guibg=#00FF00 guifg=#FF00FF
         autocmd InsertEnter * highlight ICursor guibg=#5A00C2 guifg=White
     endif
+
 " cursorline
     set cursorline
-    if &background == "dark"
-        if !exists("colorscheme_elflord")
-            autocmd InsertEnter * highlight CursorLine guibg=#600030
-            autocmd InsertLeave * highlight CursorLine guibg=#0000BB
-        else
-            autocmd InsertEnter * highlight CursorLine guibg=#220000
-            autocmd InsertLeave * highlight CursorLine guibg=#334444
-        endif
-    else
-            autocmd InsertEnter * highlight CursorLine guibg=#BBFFBB
-            autocmd InsertLeave * highlight CursorLine guibg=#FFAAFF
-    endif
+"    if &background == "dark"
+"        autocmd InsertEnter * highlight CursorLine guibg=Black
+"        autocmd InsertLeave * highlight CursorLine guibg=#505050
+"    else
+"        autocmd InsertEnter * highlight CursorLine guibg=#BBFFBB
+"        autocmd InsertLeave * highlight CursorLine guibg=#FFAAFF
+"    endif
+
+" to disable the cursorline in inactive window
+    autocmd WinEnter * setlocal cursorline
+    autocmd BufEnter * setlocal cursorline
+    autocmd WinLeave * setlocal nocursorline
+    setlocal cursorline
+
+" tripple click highlight and search word
+noremap <3-LeftMouse> *<ESC>
+inoremap <3-LeftMouse> <c-o>*
 
 " highlight the word under the cursor
     nnoremap w/ :if Toggle_Highlight()<Bar>endif<CR>
@@ -111,6 +141,7 @@
         autocmd InsertEnter * highlight vertsplit guibg=#000050 guifg=#AFAF00
     endif
     "set fillchars+=vert:⁞
+    "set fillchars+=vert:?
     set fillchars+=vert:*
 
 "folded line color
@@ -140,6 +171,87 @@
     nmap <leader>w :w!<cr>
     nmap <leader>q :q<cr>
 
+    nmap <leader>l :call CommentLine()<CR>
+    nmap <leader>b :call CommentLineBlock()<CR>
+    nmap <leader>si  : call SingleInput()<CR>
+    nmap <leader>so  : call SingleOutput()<CR>
+    nmap <leader>sio : call SingleInOut()<CR>
+    nmap <leader>vi  : call VectorInput()<CR>
+    nmap <leader>vo  : call VectorOutput()<CR>
+    nmap <leader>vio : call VectorInOut()<CR>
+    nmap <leader>sl  : call SingleLogic()<CR>
+    nmap <leader>vl  : call VectorLogic()<CR>
+    nmap <leader>sw  : call SingleWire()<CR>
+    nmap <leader>vw  : call VectorWire()<CR>
+    nmap <leader>sr  : call SingleReg()<CR>
+    nmap <leader>vr  : call VectorReg()<CR>
+    nmap <leader>ff  : call FlipFlop()<CR>
+    nmap <leader>cl  : call ComboLogic()<CR>
+
+    function! CommentLine()
+        execute 's/^/\/\/----------------------------------------------------------------------------------------------------\r'
+    endfunction
+    function! CommentLineBlock()
+        execute 's/^/\/\/####################################################################################################\r'
+    endfunction
+
+    function! SingleInput()
+        execute 's/^/input   logic                                   i_;\r'
+    endfunction
+    function! SingleOutput()
+        execute 's/^/output  logic                                   o_;\r'
+    endfunction
+    function! SingleInOut()
+        execute 's/^/inout   logic                                   io_;\r'
+    endfunction
+    function! VectorInput()
+        execute 's/^/input   logic   [-1:0]                          i_;\r'
+    endfunction
+    function! VectorOutput()
+        execute 's/^/output  logic   [-1:0]                          o_;\r'
+    endfunction
+    function! VectorInOut()
+        execute 's/^/inout   logic   [-1:0]                          io_;\r'
+    endfunction
+    function! SingleLogic()
+        execute 's/^/logic                                           ;\r'
+    endfunction
+    function! VectorLogic()
+        execute 's/^/logic           [-1:0]                          ;\r'
+    endfunction
+    function! SingleWire()
+        execute 's/^/wire                                            ;\r'
+    endfunction
+    function! VectorWire()
+        execute 's/^/wire            [-1:0]                          ;\r'
+    endfunction
+    function! SingleReg()
+        execute 's/^/reg                                             ;\r'
+    endfunction
+    function! VectorReg()
+        execute 's/^/reg             [-1:0]                          ;\r'
+    endfunction
+    function! FlipFlop()
+"        execute 's/^/always_ff @(posedge clk or negedge rst_n)\rbegin\r    if (!rst_n)\r    begin\r        \r    end\r    else\r    begin\r        \r    end\rend'
+execute 's/^/`ifdef SYNC_RESET\ralways_ff @(posedge clk)\r`else\ralways_ff @(posedge clk or negedge rst_n)\r`endif\rbegin\r    if (!rst_n)\r    begin\r        \r    end\r    else\r    begin\r        \r    end\rend'
+    endfunction
+    function! ComboLogic()
+        execute 's/^/always_comb\rbegin\r    if ()\r    begin\r        \r    end\r    else\r    begin\r        \r    end\rend'
+    endfunction
+
+" automatic header insertion while creating the file of specific type
+autocmd bufnewfile *.v  so /home/skavara/.vim/scripts/rtl_header.txt
+autocmd bufnewfile *.sv so /home/skavara/.vim/scripts/rtl_header.txt
+
+autocmd bufnewfile *.v  exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y")
+autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y")
+"autocmd bufnewfile *.v  exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y") . '                                      \/\/'
+"autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y") . '                                      \/\/'
+
+"autocmd bufnewfile *.v  exe "1," . 10 . "g/File Name        :.*/s//File Name        : " .expand("%")
+"autocmd bufnewfile *.sv exe "1," . 10 . "g/File Name        :.*/s//File Name        : " .expand("%")
+"autocmd bufnewfile *.v  exe "1," . 10 . "g/Creation Date    :.*/s//Creation Date    : " .strftime("%d-%m-%Y")
+"autocmd bufnewfile *.sv exe "1," . 10 . "g/Creation Date    :.*/s//Creation Date    : " .strftime("%d-%m-%Y")
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " user interface
@@ -180,8 +292,8 @@
     set magic
 " show matching brackets
     set showmatch
-    autocmd InsertEnter * highlight Matchparen guibg=Red guifg=White gui=underline
-    autocmd InsertLeave * highlight Matchparen guibg=Red guifg=Yellow gui=underline
+    autocmd InsertEnter * highlight Matchparen guibg=Red guifg=Green gui=underline
+    autocmd InsertLeave * highlight Matchparen guibg=Green guifg=Red gui=underline
 " how many tenths of second to blink when a matching brackets
     set mat=4
 " current mode in status line
@@ -215,9 +327,11 @@
 " window default size setting
     if &diff
         set wrap
-        set lines=45 columns=220
+        set lines=60 columns=220
+        map ] ]c
+        map [ [c
     else
-        set lines=45 columns=110
+        set lines=60 columns=110
     endif
     "winpos 20 20
 
@@ -265,25 +379,20 @@ set sidescrolloff=10
 " compare mode color
     if &background == "dark"
         if !exists("colorscheme_elflord")
-            highlight DiffAdd cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#66FF66 guifg=bg
-            highlight DiffDelete cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#552B49 guifg=#EBF61E
-            highlight DiffChange cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#9E9147 guifg=White
-            highlight DiffText cterm=NONE ctermbg=88 ctermfg=10 gui=NONE guibg=#FF2020 guifg=bg
-        else
-            highlight DiffAdd cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#66FF66 guifg=bg
-            highlight DiffDelete cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#2020FF guifg=bg
-            highlight DiffChange cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#E194FF guifg=White
-            highlight DiffText cterm=NONE ctermbg=88 ctermfg=10 gui=NONE guibg=Red guifg=bg
-        endif
+        highlight DiffAdd cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=Cyan guifg=Red
+        highlight DiffDelete cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#2020FF guifg=White
+        highlight DiffChange cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#E194FF guifg=White
+        highlight DiffText cterm=NONE ctermbg=88 ctermfg=10 gui=NONE guibg=Red guifg=White
     else
-        highlight DiffAdd cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#1A2B3C guifg=bg
-        highlight DiffDelete cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#CE4100 guifg=bg
+        highlight DiffAdd cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#1A2B3C guifg=Black
+        highlight DiffDelete cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#CE4100 guifg=Black
         highlight DiffChange cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#A2ECEC guifg=Black
-        highlight DiffText cterm=NONE ctermbg=88 ctermfg=10 gui=NONE guibg=#D20300 guifg=bg
+        highlight DiffText cterm=NONE ctermbg=88 ctermfg=10 gui=NONE guibg=#D20300 guifg=Black
     endif
 
 " ignore the white space during the comparison
     set diffopt+=iwhite
+    set diffopt+=context:3
     set diffexpr=""
 
 " utf-8 as standard encoding
@@ -293,7 +402,7 @@ set sidescrolloff=10
 
 " pop-up menu color
     highlight Pmenu guibg=Green guifg=Black
-    highlight PmenuSel guibg=Blue guifg=White
+    highlight PmenuSel guibg=Blue guifg=White gui=underline
     highlight PmenuSbar ctermbg=Red guibg=Red
     highlight PmenuThumb ctermfg=Yellow guifg=Yellow
 
@@ -336,19 +445,23 @@ set sidescrolloff=10
 
 " convert tabs to space before writing a file
     set expandtab
-    autocmd! bufwritepre * set expandtab | retab! 4
+"    autocmd! bufwritepre * set expandtab | retab! 4
 
+" unicode type steps : Go to insert mode, Ctrl+v, type letter u then unicode number, Esc
 " show the indent guides
     set list
-    "set listchars=tab:⁞\ 
-    "set listchars=tab:▌\ 
-    "set listchars=tab:▦\ 
+"    set listchars=tab:\|\
+    "set listchars=tab:?\
+"    set listchars=tab:\|\-
+"    set listchars=tab:▒.   " u2592, .
+    set listchars=tab:┊┈    " u250a, u2508
+" █ -> 2589
+" ▐ -> 2590
 " ░ -> 2591
 " ▒ -> 2592
 " ▓ -> 2593
-    "set listchars=tab:▒\ 
-    set listchars=tab:\|\-
-
+" ┊ -> 250A
+" ┈ -> 2508
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " visual mode related
@@ -361,14 +474,14 @@ set sidescrolloff=10
     else
         autocmd InsertEnter * highlight Visual gui=NONE guibg=#7F00FF guifg=Yellow
     endif
-" toggle mini buffer explorer
+" enable mini buffer explorer
     map <leader>mb :TMiniBufExplorer<cr>
 " nerdtree
-autocmd VimEnter * :NERDTree
+"autocmd VimEnter * :NERDTree
 autocmd VimEnter * wincmd p
 
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary")) | q | endif
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -443,7 +556,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
     set statusline =%3*\%n\ %*                             " Buffer Number
     "set statusline +=%5*%{&ff}%*                            " File Format
     set statusline +=%1*%y%*                                " File Type
-    set statusline +=%*\ %<%F%*                            " Full Path
+    "set statusline +=%*\ %<%F%*                            " Full Path
     set statusline +=%2*%m\ %*                                " Modified Flag
     "set statusline+=%{SyntaxItem()}                         " syntax highlight group under cursor
     set statusline +=%5*%w\%=\ CWD:\ %r%{getcwd()}%h%*      " Current Working Directory
@@ -461,7 +574,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
         hi User3 guifg=Red             guibg=Yellow
         hi User4 guifg=Blue            guibg=White
         hi User5 guifg=Black           guibg=Grey80
-        autocmd InsertEnter * hi User5 guifg=White   guibg=#103F10
+        autocmd InsertEnter * hi User5 guifg=#103F10   guibg=White
         autocmd Insertleave * hi User5 guifg=Black   guibg=#FFBFBF
     else
         autocmd InsertEnter * hi statusline gui=NONE guibg=#008000 guifg=White
@@ -556,15 +669,19 @@ set titlestring=%t\ %m\ (%{expand('%:p:h')})
     noremap gl <C-w>gf:tabm<ENTER>
 " open the path under the cursor in a vertical split right side window
     noremap gs <C-w>vgf
-" open the nerdtree in vertical split window to right
+" open nerdtree
+    noremap <leader>nt : :NERDTreeToggle <CR>
+" open the netrw in vertical split window to right
     noremap <leader>T :vs<ENTER>:E<ENTER>
-" open the nerdtree in new tab to right
+" open the netrw in new tab to right
     noremap tt :tabe<ENTER>:E<ENTER>
 " select all
     "nmap <m-a> ggVG
 " duplicate the selected text
-    map <m-d> y<ESC>P
-
+     noremap <leader>d y<ESC>P
+"    noremap <m-d> y<ESC>P
+" select the last pasted text
+   nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 " remove the windows ^M - when the encoding gets messed up
     noremap <Leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 
@@ -603,11 +720,11 @@ map <leader>p :cp<cr>
    "nnoremap N NzzzV
 
     if &background == "dark"
-        au InsertLeave * hi Search      guifg=Black     guibg=Yellow
-        au InsertEnter * hi Search      guifg=Black     guibg=#FF7777
+        au InsertLeave * hi Search      guifg=Black     guibg=Yellow gui=underline
+        au InsertEnter * hi Search      guifg=Black     guibg=#FF7777 gui=underline
     else
-        au InsertLeave * hi Search      guifg=#0000FF guibg=#00FF00
-        au InsertEnter * hi Search      guifg=Black   guibg=Cyan
+        au InsertLeave * hi Search      guifg=#0000FF guibg=#00FF00 gui=underline
+        au InsertEnter * hi Search      guifg=Black   guibg=Cyan gui=underline
     endif
 hi Search       ctermfg=black   ctermbg=darkYellow
 
@@ -682,16 +799,22 @@ hi Search       ctermfg=black   ctermbg=darkYellow
     :inoremap <Tab> <C-R>=Tab_Or_Complete()<CR>
 " tab completion stuff for command line
     set wildmode=longest,list,full
+    
+au BufReadPost *.sv set iskeyword=@,48-57,_,192-255
+au BufReadPost *.v set iskeyword=@,48-57,_,192-255
+au BufReadPost *.svh set iskeyword=@,48-57,_,192-255
 
 " press the '-' key to comment a line and '_' key to uncomment it
     filetype on
     augroup vimrc_filetype
         autocmd!
         autocmd FileType c call s:MyCSettings()
+        autocmd FileType vhdl call s:MyVHDLSettings()
         autocmd FileType verilog call s:MyVerilogSettings()
         autocmd FileType sv call s:MyVerilogSettings()
         autocmd FileType vim call s:MyVimSettings()
         autocmd FileType tcl call s:MyTCLSettings()
+        autocmd FileType csh call s:MyTCLSettings()
     augroup end
     " clear all comment markers (one rule for all langauges)
         "map _ :s/^\/\/\\|^--\\|^> \\|^[#"%!;]//<CR>:nohlsearch<CR>
@@ -713,27 +836,21 @@ hi Search       ctermfg=black   ctermbg=darkYellow
         map - :call C_Comment()<CR><CR>
         map _ :call C_Uncomment()<CR><CR>
     endfunction
-    function! s:MyVerilogSettings()
-        " insert comments markers
-        "map - :s/^/\/\/<CR>
-        "map _ :s/\(^\s*\)\@<=\/\///<CR>
-        function! Verilog_Comment()
+    function! s:MyVHDLSettings()
+        function! VHDL_Comment()
             let @t = getreg('/')
-            execute 's/^/\/\/'
+            execute 's/^/--/'
             let @/ = getreg('t')
         endfunction
-        function! Verilog_Uncomment()
+        function! VHDL_Uncomment()
             let @t = getreg('/')
-            execute 's/\(^\s*\)\@<=\/\///'
+            execute 's/\(^\s*\)\@<=\-\-//'
             let @/ = getreg('t')
         endfunction
-        map - :call Verilog_Comment()<CR><CR>
-        map _ :call Verilog_Uncomment()<CR><CR>
+        map - :call VHDL_Comment()<CR><CR>
+        map _ :call VHDL_Uncomment()<CR><CR>
     endfunction
     function! s:MyVimSettings()
-        " insert comments markers
-        "map - :s/^/\"/<CR>
-        "map _ :s/\(^\s*\)\@<=\"//<CR>
         function! Vim_Comment()
             let @t = getreg('/')
             execute 's/^/\"/'
@@ -748,9 +865,6 @@ hi Search       ctermfg=black   ctermbg=darkYellow
         map _ :call Vim_Uncomment()<CR><CR>
     endfunction
     function! s:MyTCLSettings()
-        " insert comments markers
-        "map - :s/^/\#/<CR>
-        "map _ :s/\(^\s*\)\@<=\#//<CR>
         function! TCL_Comment()
             let @t = getreg('/')
             execute 's/^/\#/'
@@ -763,6 +877,20 @@ hi Search       ctermfg=black   ctermbg=darkYellow
         endfunction
         map - :call TCL_Comment()<CR><CR>
         map _ :call TCL_Uncomment()<CR><CR>
+    endfunction
+    function! s:MyVerilogSettings()
+        function! Verilog_Comment()
+            let @t = getreg('/')
+            execute 's/^/\/\/'
+            let @/ = getreg('t')
+        endfunction
+        function! Verilog_Uncomment()
+            let @t = getreg('/')
+            execute 's/\(^\s*\)\@<=\/\///'
+            let @/ = getreg('t')
+        endfunction
+        map - :call Verilog_Comment()<CR><CR>
+        map _ :call Verilog_Uncomment()<CR><CR>
     endfunction
 
 " function for removing the Last N Characters in a given range of line usage
@@ -780,6 +908,26 @@ hi Search       ctermfg=black   ctermbg=darkYellow
     function! RFNC (n) range
         if (a:firstline <= a:lastline)
             execute printf(':%d,%ds/^.\{%d}//', a:firstline, a:lastline, a:n)
+        else
+            execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
+        endif
+    endfunction
+   
+" function for removing the Last N Words in a given range of line usage
+" :3, 10call RLNW(5)
+    function! RLNW (n) range
+        if (a:firstline <= a:lastline)
+            execute printf(':%d,%dnorm $%dgElD', a:firstline, a:lastline, a:n)
+        else
+            execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
+        endif
+    endfunction
+
+" function for removing the First N Words in a given range of line usage
+" :3, 10call RFNW(5)
+    function! RFNW (n) range
+        if (a:firstline <= a:lastline)
+            execute printf(':%d,%dnorm ^%ddw', a:firstline, a:lastline, a:n)
         else
             execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
         endif
@@ -971,38 +1119,90 @@ nnoremap <F5> :<C-u>call Multiply()<CR>
     au BufRead,BufNewFile *.svh set filetype=sv
     au BufRead,BufNewFile *.rpt set filetype=fortran
     au BufRead,BufNewFile *.xdc set filetype=tcl
+    au BufRead,BufNewFile *.sgdc set filetype=tcl
     au BufRead,BufNewFile *.sdc set filetype=fortran
     au BufRead,BufNewFile *.fdc set filetype=conf
     au BufRead,BufNewFile *.txt set filetype=fortran
     au BufRead,BufNewFile *.log set filetype=fortran
     au BufRead,BufNewFile *.out set filetype=fortran
 
-"   nnoremap n nzv:call BlinkCursorLine()<ESC>
-"   nnoremap N Nzv:call BlinkCursorLine()<ESC>
-"   "if has('gui_running')
-"   "    let g:BlinkColorList = [ '#AF0000', '#9F0000', '#900000' ]
-"       let g:BlinkColorList = ['#AF0000', '#900000']
-"       let g:bgcolor = 'guibg'
-"   "else
-"   "    let g:BlinkColorList = [ 'DarkGreen', 'Green', 'PaleGreen' ]
-"   "    let g:bgcolor = 'ctermbg'
-"   "endif
-"   function! BlinkCursorLine()
-"       for col_i in g:BlinkColorList
-"           execute 'hi CursorLine ' . g:bgcolor . '=' . col_i
-"           redraw
-"           sleep 5m
-"       endfor
-"       for col_i in reverse(copy(g:BlinkColorList))
-"           execute 'hi CursorLine ' . g:bgcolor . '=' . col_i
-"           redraw
-"           sleep 5m
-"       endfor
-"       execute 'hi CursorLine ' . g:bgcolor '=Grey25'
-"   endfunction
+   nnoremap n nzv:call BlinkCursorLine()<ESC>
+   nnoremap N Nzv:call BlinkCursorLine()<ESC>
+   "if has('gui_running')
+   "    let g:BlinkColorList = [ '#AF0000', '#9F0000', '#900000' ]
+       let g:BlinkColorList = ['#FF0077', '#0077FF', '#77FF00']
+       let g:bgcolor = 'guibg'
+   "else
+   "    let g:BlinkColorList = [ 'DarkGreen', 'Green', 'PaleGreen' ]
+   "    let g:bgcolor = 'ctermbg'
+   "endif
+   function! BlinkCursorLine()
+       for col_i in g:BlinkColorList
+           execute 'hi CursorLine ' . g:bgcolor . '=' . col_i
+           redraw
+           sleep 10m
+       endfor
+       for col_i in reverse(copy(g:BlinkColorList))
+           execute 'hi CursorLine ' . g:bgcolor . '=' . col_i
+           redraw
+           sleep 10m
+       endfor
+       "execute 'hi CursorLine ' . g:bgcolor '=Grey25'
+        if &background == "dark"
+            execute 'hi CursorLine ' . g:bgcolor '=#502050'
+            autocmd InsertEnter * highlight CursorLine guibg=Black
+            autocmd InsertLeave * highlight CursorLine guibg=#505050
+        else
+            execute 'hi CursorLine ' . g:bgcolor '=#FFAAFF'
+            autocmd InsertEnter * highlight CursorLine guibg=#BBFFBB
+            autocmd InsertLeave * highlight CursorLine guibg=#FFAAFF
+        endif
+   endfunction
 
-"function! HighlightRegion(color)
-"    let l_start = line("'<")
-"    let l_end = line("'>") + 1
-"    execute 'syntax region ' . a:color . ' start=/\%' . l_start . 'l/ end=/\%' . l_end . 'l/'
-"endfunction
+" right allign to specified column
+    function! RAC (col_num) range
+        if (a:firstline <= a:lastline)
+            nmap s A <ESC>0
+            let line_num = a:firstline
+            while line_num <= a:lastline
+                execute "normal " . line_num . "Gmc" . a:col_num . "s" . a:col_num . "lDgelD`cP"
+                let line_num = line_num + 1
+            endwhile
+            nunmap s
+        else
+            execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
+        endif
+    endfunction
+
+" left allign to specified column (min value is 2)
+    function! LAC (col_num) range
+        if (a:firstline <= a:lastline)
+            let line_num = a:firstline
+            while line_num <= a:lastline
+                execute "normal " . line_num . "G0" . a:col_num . "ldw"
+                let line_num = line_num + 1
+            endwhile
+        else
+            execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
+        endif
+    endfunction
+
+" Rainbow matching brackets enabled
+au FileType * call rainbow#load()
+
+" load multiple highlights text
+let loaded_highlightmultiple = 1
+
+" Airline Settings
+"TABLINE:
+let g:airline_skip_empty_sections = 1
+let g:airline_section_error = ''            " removing the error section
+let g:airline_section_warning = ''          " removing the warning section
+let g:airline_section_b = '%0.40{getcwd()}' " in section b of the status line display the CWD
+let g:airline_section_y = ''                " remove section y
+let g:airline_inactive_alt_sep=1
+let g:airline_left_sep='▶'                  " u25b6
+let g:airline_right_sep='◀'                 " u25c0
+let g:airline_left_alt_sep='❱'              " u2771
+let g:airline_right_alt_sep='❰'             " u2770
+let g:airline_symbols.readonly = '◉'        " ◉ u25c9 or ◙ u5d9
