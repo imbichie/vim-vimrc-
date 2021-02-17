@@ -378,7 +378,6 @@ set sidescrolloff=10
 
 " compare mode color
     if &background == "dark"
-        if !exists("colorscheme_elflord")
         highlight DiffAdd cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=Cyan guifg=Red
         highlight DiffDelete cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#2020FF guifg=White
         highlight DiffChange cterm=NONE ctermbg=17 ctermfg=10 gui=NONE guibg=#E194FF guifg=White
@@ -1119,8 +1118,8 @@ nnoremap <F5> :<C-u>call Multiply()<CR>
     au BufRead,BufNewFile *.svh set filetype=sv
     au BufRead,BufNewFile *.rpt set filetype=fortran
     au BufRead,BufNewFile *.xdc set filetype=tcl
+    au BufRead,BufNewFile *.sdc set filetype=tcl
     au BufRead,BufNewFile *.sgdc set filetype=tcl
-    au BufRead,BufNewFile *.sdc set filetype=fortran
     au BufRead,BufNewFile *.fdc set filetype=conf
     au BufRead,BufNewFile *.txt set filetype=fortran
     au BufRead,BufNewFile *.log set filetype=fortran
@@ -1158,6 +1157,12 @@ nnoremap <F5> :<C-u>call Multiply()<CR>
             autocmd InsertLeave * highlight CursorLine guibg=#FFAAFF
         endif
    endfunction
+   
+"function! HighlightRegion(color)
+"    let l_start = line("'<")
+"    let l_end = line("'>") + 1
+"    execute 'syntax region ' . a:color . ' start=/\%' . l_start . 'l/ end=/\%' . l_end . 'l/'
+"endfunction
 
 " right allign to specified column
     function! RAC (col_num) range
