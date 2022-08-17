@@ -80,10 +80,10 @@
 "    endif
 
 " to disable the cursorline in inactive window
-    autocmd WinEnter * setlocal cursorline
-    autocmd BufEnter * setlocal cursorline
-    autocmd WinLeave * setlocal nocursorline
-    setlocal cursorline
+    "autocmd WinEnter * setlocal cursorline
+    "autocmd BufEnter * setlocal cursorline
+    "autocmd WinLeave * setlocal nocursorline
+    "setlocal cursorline
 
 " tripple click highlight and search word
 noremap <3-LeftMouse> *<ESC>
@@ -120,7 +120,7 @@ inoremap <3-LeftMouse> <c-o>*
             au! auto_highlight
             augroup! auto_highlight
             setl updatetime=4000
-            echo 'Highlight current word: off'
+            echo 'Search current word: off'
             return 0
         else
             augroup auto_highlight
@@ -129,7 +129,7 @@ inoremap <3-LeftMouse> <c-o>*
             au CursorHoldI * let @/ = '\V\<'.escape(expand('<cword>'), '\').'\>'
             augroup end
             setl updatetime=50
-            echo 'Highlight current word: ON'
+            echo 'Search current word: ON'
             return 1
         endif
     endfunction
@@ -240,24 +240,24 @@ execute 's/^/`ifdef SYNC_RESET\ralways_ff @(posedge clk)\r`else\ralways_ff @(pos
     endfunction
 
 " automatic header insertion while creating the file of specific type
-autocmd bufnewfile *.v  so /home/skavara/.vim/scripts/rtl_header.txt
-autocmd bufnewfile *.sv so /home/skavara/.vim/scripts/rtl_header.txt
+"autocmd bufnewfile *.v  so ~/.vim/scripts/rtl_header.txt
+"autocmd bufnewfile *.sv so ~/.vim/scripts/rtl_header.txt
 
-autocmd bufnewfile *.v  exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y")
-autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y")
-"autocmd bufnewfile *.v  exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y") . '                                      \/\/'
-"autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y") . '                                      \/\/'
-
-"autocmd bufnewfile *.v  exe "1," . 10 . "g/File Name        :.*/s//File Name        : " .expand("%")
-"autocmd bufnewfile *.sv exe "1," . 10 . "g/File Name        :.*/s//File Name        : " .expand("%")
-"autocmd bufnewfile *.v  exe "1," . 10 . "g/Creation Date    :.*/s//Creation Date    : " .strftime("%d-%m-%Y")
-"autocmd bufnewfile *.sv exe "1," . 10 . "g/Creation Date    :.*/s//Creation Date    : " .strftime("%d-%m-%Y")
+"autocmd bufnewfile *.v  exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y")
+"autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y")
+""autocmd bufnewfile *.v  exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y") . '                                      \/\/'
+""autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .strftime("%d-%m-%Y") . '                                      \/\/'
+"
+""autocmd bufnewfile *.v  exe "1," . 10 . "g/File Name        :.*/s//File Name        : " .expand("%")
+""autocmd bufnewfile *.sv exe "1," . 10 . "g/File Name        :.*/s//File Name        : " .expand("%")
+""autocmd bufnewfile *.v  exe "1," . 10 . "g/Creation Date    :.*/s//Creation Date    : " .strftime("%d-%m-%Y")
+""autocmd bufnewfile *.sv exe "1," . 10 . "g/Creation Date    :.*/s//Creation Date    : " .strftime("%d-%m-%Y")
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " user interface
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" 5 lines to the cursor - when moving vertically using j/k
-    set so=5
+" 3 lines to the cursor - when moving vertically using j/k
+    set so=3
 " turn on wild menu
     set wildmenu
     highlight WildMenu guibg=DarkYellow guifg=Grey
@@ -271,7 +271,7 @@ autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .s
 " height of command bar
     set cmdheight=1
 " yank from file to file
-    set clipboard=unnamed
+    set clipboard=unnamedplus
 " buffer becomes hidden when it is abandoned
     set hid
 " ignore case when searching
@@ -292,8 +292,8 @@ autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .s
     set magic
 " show matching brackets
     set showmatch
-    autocmd InsertEnter * highlight Matchparen guibg=Red guifg=Green gui=underline
-    autocmd InsertLeave * highlight Matchparen guibg=Green guifg=Red gui=underline
+    autocmd InsertEnter * highlight Matchparen guibg=#FFFFFF guifg=#000000 gui=underline
+    autocmd InsertLeave * highlight Matchparen guibg=#00FF00 guifg=#000000 gui=underline
 " how many tenths of second to blink when a matching brackets
     set mat=4
 " current mode in status line
@@ -334,6 +334,12 @@ autocmd bufnewfile *.sv exe "1," . 20 . "g/DATE        :.*/s//DATE        : " .s
         set lines=60 columns=110
     endif
     "winpos 20 20
+
+" Make adjusing split sizes a bit more friendly
+noremap <silent> <C-Left> :vertical resize +5<CR>
+noremap <silent> <C-Right> :vertical resize -5<CR>
+noremap <silent> <C-Up> :resize +5<CR>
+noremap <silent> <C-Down> :resize -5<CR>
 
 " Lines not rendering while scrolling problem solution
 " set the ttyscroll to a low number from 0 to 2, etc
@@ -390,9 +396,9 @@ set sidescrolloff=10
     endif
 
 " ignore the white space during the comparison
-    set diffopt+=iwhite
+    "set diffopt+=iwhite
     set diffopt+=context:3
-    set diffexpr=""
+    "set diffexpr=""
 
 " utf-8 as standard encoding
     set encoding=utf-8
@@ -428,9 +434,14 @@ set sidescrolloff=10
 " round indent to nearest multiple of 4
     set shiftround
 
-" linebreak on 80 characters
+" linebreak on 100 characters
     set lbr
-    "set tw=80
+    "set tw=100
+     set colorcolumn=99
+    set colorcolumn=+1  " highlight 1 columns after 'textwidth'
+"    set colorcolumn=+1,+2,+3,+4,+5  " highlight 5 columns after 'textwidth'
+    "hi ColorColumn ctermbg=Red guibg=Red
+
 
     set ai " auto indent
     set si " smart indent
@@ -1192,8 +1203,36 @@ nnoremap <F5> :<C-u>call Multiply()<CR>
         endif
     endfunction
 
+" remove the space in between words
+" NOTE : if line is starting with space, then that space will not be counted
+    function! RSBW (num_occr) range
+        if (a:firstline <= a:lastline)
+            let line_num = a:firstline
+            while line_num <= a:lastline
+                let cnt_val = a:num_occr
+                execute "normal " . line_num . "G0"
+                while (cnt_val > 0)
+                    execute "normal wf "
+                    let cnt_val = cnt_val - 1
+                endwhile
+                execute "normal dw"
+                let line_num = line_num + 1
+            endwhile
+        else
+            execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
+        endif
+    endfunction
+
 " Rainbow matching brackets enabled
-au FileType * call rainbow#load()
+"au FileType * call rainbow#load()
+
+" Rainbow Parantheses
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+"au Syntax * RainbowParenthesesLoadChevrons
+
 
 " load multiple highlights text
 let loaded_highlightmultiple = 1
@@ -1203,7 +1242,8 @@ let loaded_highlightmultiple = 1
 let g:airline_skip_empty_sections = 1
 let g:airline_section_error = ''            " removing the error section
 let g:airline_section_warning = ''          " removing the warning section
-let g:airline_section_b = '%0.40{getcwd()}' " in section b of the status line display the CWD
+"let g:airline_section_b = '%0.40{getcwd()}' " in section b of the status line display the CWD
+let g:airline_section_b = '%0{getcwd()}' " in section b of the status line display the CWD
 let g:airline_section_y = ''                " remove section y
 let g:airline_inactive_alt_sep=1
 let g:airline_left_sep='▶'                  " u25b6
@@ -1211,3 +1251,7 @@ let g:airline_right_sep='◀'                 " u25c0
 let g:airline_left_alt_sep='❱'              " u2771
 let g:airline_right_alt_sep='❰'             " u2770
 let g:airline_symbols.readonly = '◉'        " ◉ u25c9 or ◙ u5d9
+let g:airline_symbols.linenr =  ' \ue0a1 '        " ue0a1
+let g:airline_symbols.colnr = ' \ue0a3 '         " ue0a3
+let g:airline_symbols.maxlinenr = ''        " empty
+let g:airline_symbols.dirty='\u26a1'             " u26a1
