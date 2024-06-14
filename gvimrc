@@ -70,14 +70,14 @@
     endif
 
 " cursorline
-    set cursorline
-"    if &background == "dark"
-"        autocmd InsertEnter * highlight CursorLine guibg=Black
-"        autocmd InsertLeave * highlight CursorLine guibg=#505050
-"    else
-"        autocmd InsertEnter * highlight CursorLine guibg=#BBFFBB
-"        autocmd InsertLeave * highlight CursorLine guibg=#FFAAFF
-"    endif
+"   set cursorline
+    if &background == "dark"
+        autocmd InsertEnter * highlight CursorLine guibg=#505050
+        autocmd InsertLeave * highlight CursorLine guibg=Black
+    else
+        autocmd InsertEnter * highlight CursorLine guibg=#BBFFBB
+        autocmd InsertLeave * highlight CursorLine guibg=#FFAAFF
+    endif
 
 " to disable the cursorline in inactive window
     "autocmd WinEnter * setlocal cursorline
@@ -136,7 +136,7 @@ inoremap <3-LeftMouse> <c-o>*
 
 " vertical split window color
     if &background == "dark"
-        autocmd InsertEnter * highlight vertsplit guibg=Black guifg=Yellow
+        autocmd InsertEnter * highlight vertsplit guibg=Blue guifg=Megenta
     else
         autocmd InsertEnter * highlight vertsplit guibg=#000050 guifg=#AFAF00
     endif
@@ -171,8 +171,8 @@ inoremap <3-LeftMouse> <c-o>*
     nmap <leader>w :w!<cr>
     nmap <leader>q :q<cr>
 
-    nmap <leader>l :call CommentLine()<CR>
-    nmap <leader>b :call CommentLineBlock()<CR>
+    nmap <leader>lc :call CommentLine()<CR>
+    nmap <leader>bc :call CommentLineBlock()<CR>
     nmap <leader>si  : call SingleInput()<CR>
     nmap <leader>so  : call SingleOutput()<CR>
     nmap <leader>sio : call SingleInOut()<CR>
@@ -327,10 +327,12 @@ execute 's/^/`ifdef SYNC_RESET\ralways_ff @(posedge clk)\r`else\ralways_ff @(pos
 " window default size setting
     if &diff
         set wrap
+        set nocursorline
         set lines=60 columns=220
         map ] ]c
         map [ [c
     else
+        set cursorline
         set lines=60 columns=110
     endif
     "winpos 20 20
@@ -436,8 +438,8 @@ set sidescrolloff=10
 
 " linebreak on 100 characters
     set lbr
-    "set tw=100
-     set colorcolumn=99
+    set tw=99
+    set colorcolumn=99
     set colorcolumn=+1  " highlight 1 columns after 'textwidth'
 "    set colorcolumn=+1,+2,+3,+4,+5  " highlight 5 columns after 'textwidth'
     "hi ColorColumn ctermbg=Red guibg=Red
@@ -509,10 +511,10 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 " disable highlight when <leader><cr> is pressed
     map <silent> <leader><cr> :noh<cr>
 " smart way to move between windows
-    map <C-j> <C-W>j
-    map <C-k> <C-W>k
-    map <C-h> <C-W>h
-    map <C-l> <C-W>l
+    noremap <C-j> <C-W>j
+    noremap <C-k> <C-W>k
+    noremap <C-h> <C-W>h
+    noremap <C-l> <C-W>l
 " close the current buffer
     "map <leader>bd :Bclose<cr>
     map <leader>bd :bdelete<cr>
@@ -526,7 +528,7 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
     map <leader>tm :tabmove
 
 " open more than 10 tabs using -p option in gvim
-    set tabpagemax=50
+    set tabpagemax=80
 
     set guitablabel=\[%N\]\ %t\ %M
     set guioptions-=m
@@ -675,6 +677,15 @@ set titlestring=%t\ %m\ (%{expand('%:p:h')})
             execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
         endif
     endfunction
+" remove blank/empty lines
+    nmap rel :g/^$/d<ENTER><ESC>
+    function! REL_range () range
+        if (a:firstline <= a:lastline)
+            execute printf(':%d,%dg/^$/d', a:firstline, a:lastline)
+        else
+            execute printf('ERROR : Start line %d is higher than End line %d', a:firstline, a:lastline)
+        endif
+    endfunction
 " open the path under the cursor in a new tab on the right side of the window
     noremap gl <C-w>gf:tabm<ENTER>
 " open the path under the cursor in a vertical split right side window
@@ -811,8 +822,12 @@ hi Search       ctermfg=black   ctermbg=darkYellow
     set wildmode=longest,list,full
     
 au BufReadPost *.sv set iskeyword=@,48-57,_,192-255
+au BufReadPost *.vp set iskeyword=@,48-57,_,192-255
+au BufReadPost *.svp set iskeyword=@,48-57,_,192-255
 au BufReadPost *.v set iskeyword=@,48-57,_,192-255
 au BufReadPost *.svh set iskeyword=@,48-57,_,192-255
+au BufReadPost *.vh set iskeyword=@,48-57,_,192-255
+au BufReadPost *.svph set iskeyword=@,48-57,_,192-255
 
 " press the '-' key to comment a line and '_' key to uncomment it
     filetype on
@@ -824,6 +839,7 @@ au BufReadPost *.svh set iskeyword=@,48-57,_,192-255
         autocmd FileType sv call s:MyVerilogSettings()
         autocmd FileType vim call s:MyVimSettings()
         autocmd FileType tcl call s:MyTCLSettings()
+        autocmd FileType perl call s:MyTCLSettings()
         autocmd FileType csh call s:MyTCLSettings()
     augroup end
     " clear all comment markers (one rule for all langauges)
@@ -1125,19 +1141,27 @@ au BufReadPost *.svh set iskeyword=@,48-57,_,192-255
 nnoremap <F5> :<C-u>call Multiply()<CR>
 
 " default syntax for unknown file type
-    au BufRead,BufNewFile *.v?v set filetype=verilog
+    au BufRead,BufNewFile *.v?v set filetype=sv
+    au BufRead,BufNewFile *.vh set filetype=sv
+    au BufRead,BufNewFile *.vp set filetype=sv
+    au BufRead,BufNewFile *.svp set filetype=sv
     au BufRead,BufNewFile *.svh set filetype=sv
+    au BufRead,BufNewFile *.svph set filetype=sv
     au BufRead,BufNewFile *.rpt set filetype=fortran
+    au BufRead,BufNewFile *.var set filetype=fortran
+    au BufRead,BufNewFile *.cfg set filetype=fortran
     au BufRead,BufNewFile *.xdc set filetype=tcl
     au BufRead,BufNewFile *.sdc set filetype=tcl
     au BufRead,BufNewFile *.sgdc set filetype=tcl
+    au BufRead,BufNewFile *.upf set filetype=tcl
+    au BufRead,BufNewFile *.var set filetype=tcl
     au BufRead,BufNewFile *.fdc set filetype=conf
     au BufRead,BufNewFile *.txt set filetype=fortran
     au BufRead,BufNewFile *.log set filetype=fortran
     au BufRead,BufNewFile *.out set filetype=fortran
 
-   nnoremap n nzv:call BlinkCursorLine()<ESC>
-   nnoremap N Nzv:call BlinkCursorLine()<ESC>
+   "nnoremap n nzv:call BlinkCursorLine()<ESC>
+   "nnoremap N Nzv:call BlinkCursorLine()<ESC>
    "if has('gui_running')
    "    let g:BlinkColorList = [ '#AF0000', '#9F0000', '#900000' ]
        let g:BlinkColorList = ['#FF0077', '#0077FF', '#77FF00']
@@ -1233,7 +1257,6 @@ au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
 "au Syntax * RainbowParenthesesLoadChevrons
 
-
 " load multiple highlights text
 let loaded_highlightmultiple = 1
 
@@ -1242,7 +1265,8 @@ let loaded_highlightmultiple = 1
 let g:airline_skip_empty_sections = 1
 let g:airline_section_error = ''            " removing the error section
 let g:airline_section_warning = ''          " removing the warning section
-"let g:airline_section_b = '%0.40{getcwd()}' " in section b of the status line display the CWD
+let g:airline_section_b = '%0.50{getcwd()}' " in section b of the status line display the CWD
+"let g:airline_section_b = '%0{getcwd()}' " in section b of the status line display the CWD
 let g:airline_section_b = '%0{getcwd()}' " in section b of the status line display the CWD
 let g:airline_section_y = ''                " remove section y
 let g:airline_inactive_alt_sep=1
@@ -1251,7 +1275,15 @@ let g:airline_right_sep='◀'                 " u25c0
 let g:airline_left_alt_sep='❱'              " u2771
 let g:airline_right_alt_sep='❰'             " u2770
 let g:airline_symbols.readonly = '◉'        " ◉ u25c9 or ◙ u5d9
-let g:airline_symbols.linenr =  ' \ue0a1 '        " ue0a1
-let g:airline_symbols.colnr = ' \ue0a3 '         " ue0a3
+let g:airline_symbols.linenr = '\u250a'          " u250A -> ue0a1
+let g:airline_symbols.colnr = '\u250a'           " u250A -> ue0a3
 let g:airline_symbols.maxlinenr = ''        " empty
 let g:airline_symbols.dirty='\u26a1'             " u26a1
+
+" Multiple Search plugin settings
+" keep the space at the end of the below line
+    nmap <leader>s :Search 
+    nmap <leader>sr :SearchReset<ENTER><ESC>
+    let g:MultipleSearchMaxColors = 8
+    let g:MultipleSearchColorSequence = "red,blue,green,magenta,cyan,gray,brown,yellow"
+    let g:MultipleSearchTextColorSequence = "white,white,white,black,black,white,white,black,black"
