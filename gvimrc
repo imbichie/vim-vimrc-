@@ -1267,7 +1267,6 @@ let g:airline_section_error = ''            " removing the error section
 let g:airline_section_warning = ''          " removing the warning section
 let g:airline_section_b = '%0.50{getcwd()}' " in section b of the status line display the CWD
 "let g:airline_section_b = '%0{getcwd()}' " in section b of the status line display the CWD
-let g:airline_section_b = '%0{getcwd()}' " in section b of the status line display the CWD
 let g:airline_section_y = ''                " remove section y
 let g:airline_inactive_alt_sep=1
 let g:airline_left_sep='▶'                  " u25b6
