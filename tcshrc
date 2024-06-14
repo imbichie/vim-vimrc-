@@ -1,0 +1,84 @@
+# User specific aliases and functions
+
+set autolist=ambigous
+set complete=enhance
+
+set filec
+set ignoreeof
+set notify
+set history=100000
+set savehist=100000
+#set histdup='default'
+#set histdup='all'
+#set histdup='prev'
+set histdup='erase'
+
+## which shell
+    alias wshell "ps -p $$"
+## create parent dirctories on demand
+    alias mkdir 'mkdir -pv'
+## clear screen
+    alias c clear
+## gvim editor
+    alias g gvim
+    alias gv gview
+    alias gp 'gvim -p'
+    alias go 'gvim -o'
+    alias gO 'gvim -O'
+    alias gd 'gvim -geometry +0+0 -d'
+    alias gn 'gvim -u NONE'
+## folder compare in gui mode
+    alias com kompare
+    alias td tkdiff
+    alias md meld
+## remove with permission
+    alias rm "rm -i"
+## copy with permission
+    alias cp "cp -i"
+## move with permission
+    alias mv "mv -i"
+## display the content with color
+    alias ls "ls --color=always"
+## show hidden files
+    alias l. 'ls -d .*'
+    alias ll "ls -altr"
+    alias lsa "ls -a"
+## listout hte files with size
+    alias lss "ls -c -lh"
+## listout the files with modified time
+    alias lst "ls -c -alt"
+## listout the files with type
+    alias lx "ls -c -X"
+## create filelist
+    alias cfl "find -follow"
+## highlight and ignore case with the grep word
+    alias grep "grep -R -i --color=auto"
+## find the file using find command, usage : $ ff "*name*"
+    alias ff 'find . -type f -name'
+## find the dirctory using find command, usage : $ fd "*name*"
+    alias fd 'find . -type d -name'
+## disc space in current dirctory
+    alias space "du -hs * | sort"
+## total disc space in the current dirctory
+    alias space_t "du -csh"
+## total disc space in the specified user, usage : $ disc_t "shibinbose"
+    alias disc_t "df -h | grep"
+## total number of files in the dirctory
+    alias nof "lx ./ | wc -l"
+## total number of lines in sv files
+    alias nol "find . -name '*.sv' | xargs c -l"
+## task finished pop-ups
+    alias zi "zenity --info --text='Job Finished'"
+
+## gits
+    alias gits "git status"
+    alias gitb "git branch"
+    alias gitd "git diff HEAD^ --"
+
+## automatically change the terminal title as current directory name
+## the "precmd" MUST BE ONLY one in a .tcshrc file
+    alias precmd 'printf "\033]0;`pwd | rev | cut -d/ -f1-2 | rev `\a"'
+
+## prompt setup
+    #set prompt = "%{\033[1;33m%}%m %{\033[1;34m%}%n  %{\033[1;31m%}`id -gn` %{\033[1;32m%}%/\n%{\033[1;37m%}>%{\033[0;m%} "
+    set prompt = "%{\033[1;33m%}%m %{\033[5;34m%}%n %{\033[0;m%}%{\033[1;31m%}`id -gn` %{\033[3;32m%}%/\n%{\033[1;37m%}>%{\033[0;m%} "
